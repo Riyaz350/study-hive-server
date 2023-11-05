@@ -58,12 +58,37 @@ app.get('/assignments', async(req, res)=>{
     const assignments = await assignmentsCollection.find().toArray()
     res.send(assignments)
 })
+app.get('/assignments/:id', async(req, res)=>{
+    const id = req.params.id
+    const query = {_id : new ObjectId(id)}
+    const assignment = await assignmentsCollection.findOne(query)
+    res.send(assignment)
+})
 
 app.post('/assignments', async(req, res)=>{
     const assignment = req.body
     const result = await assignmentsCollection.insertOne(assignment)
     console.log(result)
     res.send(result)
+})
+
+app.put('/assignments/:id', async(req, res)=>{
+    const id = req.params.id
+  const query = {_id: new ObjectId(id)}
+  const options = { upsert: true };
+  const updatedAssignment = req.body
+  const assignment = {
+    $set:{
+      title: updatedAssignment.title,
+      photo: updatedAssignment.photo,
+      difficulty: updatedAssignment.difficulty,
+      date: updatedAssignment.date,
+      mark: updatedAssignment.mark,
+      description: updatedAssignment.description   
+    }
+  }
+  const result = await assignmentsCollection.updateOne(query, assignment, options)
+      res.send(result)
 })
 
 
