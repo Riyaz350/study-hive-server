@@ -55,7 +55,11 @@ app.get('/', (req, res) => {
 
 // ASSIGNMENTS
 app.get('/assignments', async(req, res)=>{
-    const assignments = await assignmentsCollection.find().toArray()
+    let query = {}
+    if(req.query?.email){
+        query = {email: req.query.email}
+    }
+    const assignments = await assignmentsCollection.find(query).toArray()
     res.send(assignments)
 })
 app.get('/assignments/:id', async(req, res)=>{
@@ -89,6 +93,13 @@ app.put('/assignments/:id', async(req, res)=>{
   }
   const result = await assignmentsCollection.updateOne(query, assignment, options)
       res.send(result)
+})
+
+app.delete('/assignments/:id', async(req, res)=>{
+    const id = req.params.id
+    const query = {_id: new ObjectId(id)}
+    const result = await assignmentsCollection.deleteOne(query);
+    res.send(result)
 })
 
 
