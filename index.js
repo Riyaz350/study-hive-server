@@ -46,6 +46,7 @@ const dbConnect = async () => {
 // MONGO COLLECTIONS
 
 const assignmentsCollection = client.db("assignmentsDB").collection("assignments");
+const submittedAssignmentsCollection = client.db("assignmentsDB").collection("submitted");
 
 // GET POST PATCH DELETE
 
@@ -99,6 +100,14 @@ app.delete('/assignments/:id', async(req, res)=>{
     const id = req.params.id
     const query = {_id: new ObjectId(id)}
     const result = await assignmentsCollection.deleteOne(query);
+    res.send(result)
+})
+
+// Submitted assignments
+
+app.post('/submitted', async(req, res)=>{
+    const assignment = req.body;
+    const result = await submittedAssignmentsCollection.insertOne(assignment)
     res.send(result)
 })
 
