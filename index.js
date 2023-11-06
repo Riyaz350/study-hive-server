@@ -111,6 +111,21 @@ app.post('/submitted', async(req, res)=>{
     res.send(result)
 })
 
+app.patch('/submitted/:id', async (req, res) => {
+    const id = req.params.id;
+    const filter = { _id: new ObjectId(id) };
+    const updatedSubmittedAssignment = req.body;
+    const updateDoc = {
+        $set: {
+            status: updatedSubmittedAssignment.status,
+            obtained_marks: updatedSubmittedAssignment.marks,
+            feedback: updatedSubmittedAssignment.feedback
+        },
+    };
+    const result = await submittedAssignmentsCollection.updateOne(filter, updateDoc);
+    res.send(result);
+})
+
 app.get('/myAssignments', async(req, res)=>{
     let query = {}
     if(req.query?.email){
