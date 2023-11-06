@@ -111,6 +111,21 @@ app.post('/submitted', async(req, res)=>{
     res.send(result)
 })
 
+app.get('/myAssignments', async(req, res)=>{
+    let query = {}
+    if(req.query?.email){
+        query = {email: req.query.email}
+    }
+    const assignments = await submittedAssignmentsCollection.find(query).toArray()
+    res.send(assignments)
+})
+
+app.get('/submitted', async(req, res)=>{
+    query = {status: req.query?.status}
+    const assignments = await submittedAssignmentsCollection.find(query).toArray()
+    res.send(assignments)
+})
+
 
 
 app.listen(port, () => {
