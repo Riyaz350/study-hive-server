@@ -18,13 +18,28 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser())
 
+const verify = async(req, res, next)=>{
+    const token = req.cookies?.token;
+    if(!token){
+        return res.status(401).send({message: 'not Authorized'})
+    }
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded)=>{
+        if(err){
+            console.log(err)
+            return res.status(401).send({message: 'unauthorized'})
+        }
+        // console.log('value of token is', decoded)
+        req.user = decoded
+        next()
+    })
+}
+
 
 // MONGODB
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.gx7mkcg.mongodb.net/?retryWrites=true&w=majority`;
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -69,7 +84,7 @@ app.post('/jwt', (req, res)=>{
         secure : true,
         sameSite:'none'
     })
-    .send(token)
+    .send(success = true)
 })
 
 
@@ -118,8 +133,13 @@ app.post('/assignments', async(req, res)=>{
     res.send(result)
 })
 
-app.put('/assignments/:id', async(req, res)=>{
-    const id = req.params.id
+app.put('/assignments', verify, async(req, res)=>{
+
+    if(req.query?.email !== req.user?.email){
+        return res.status(403).send({message: 'forbidden access'})
+
+    }
+    const id = req.query._id
   const query = {_id: new ObjectId(id)}
   const options = { upsert: true };
   const updatedAssignment = req.body
@@ -146,7 +166,22 @@ app.delete('/assignments/:id', async(req, res)=>{
 
 // Submitted assignments
 
-app.post('/submitted', async(req, res)=>{
+app.get('/submitted', verify,  async(req, res)=>{
+ 
+    if(req.query?.email !== req.user?.email){
+        return res.status(403).send({message: 'forbidden access'})
+
+    }
+    query = {status: 'pending'}
+    const assignments = await submittedAssignmentsCollection.find(query).toArray()
+    res.send(assignments)
+})
+
+app.post('/submitted', verify,  async(req, res)=>{
+    if(req.query?.email !== req.user?.email){
+        return res.status(403).send({message: 'forbidden access'})
+
+    }
     const assignment = req.body;
     const result = await submittedAssignmentsCollection.insertOne(assignment)
     res.send(result)
@@ -167,7 +202,11 @@ app.patch('/submitted/:id', async (req, res) => {
     res.send(result);
 })
 
-app.get('/myAssignments', async(req, res)=>{
+app.get('/myAssignments',verify, async(req, res)=>{
+    if(req.query?.email !== req.user?.email){
+        return res.status(403).send({message: 'forbidden access'})
+
+    }
     let query = {}
     if(req.query?.email){
         query = {email: req.query.email}
@@ -176,11 +215,7 @@ app.get('/myAssignments', async(req, res)=>{
     res.send(assignments)
 })
 
-app.get('/submitted', async(req, res)=>{
-    query = {status: req.query?.status}
-    const assignments = await submittedAssignmentsCollection.find(query).toArray()
-    res.send(assignments)
-})
+
 
 
 
