@@ -193,19 +193,22 @@ app.post('/submitted', verify,  async(req, res)=>{
     res.send(result)
 })
 
-app.patch('/submitted/:id', async (req, res) => {
+app.patch('/submitted', verify, async (req, res) => {
+    console.log(req.query?.email, req.user?.email)
     if(req.query?.email !== req.user?.email){
         return res.status(403).send({message: 'forbidden access'})
 
     }
     const id = req.query.id;
+    console.log(id)
     const filter = { _id: new ObjectId(id) };
     const updatedSubmittedAssignment = req.body;
+    console.log(updatedSubmittedAssignment.status)
     const updateDoc = {
         $set: {
             status: updatedSubmittedAssignment.status,
-            obtained_marks: updatedSubmittedAssignment.marks,
-            feedback: updatedSubmittedAssignment.feedback
+            obtained_marks: updatedSubmittedAssignment.Mark,
+            feedback: updatedSubmittedAssignment.Feedback
         },
     };
     const result = await submittedAssignmentsCollection.updateOne(filter, updateDoc);
