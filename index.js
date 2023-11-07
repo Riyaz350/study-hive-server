@@ -120,13 +120,19 @@ app.get('/reviews', async(req, res)=>{
 })
 
 app.get('/assignments/:id', async(req, res)=>{
+    
     const id = req.params.id
     const query = {_id : new ObjectId(id)}
     const assignment = await assignmentsCollection.findOne(query)
     res.send(assignment)
 })
 
-app.post('/assignments', async(req, res)=>{
+
+app.post('/assignments', verify, async(req, res)=>{
+    if(req.query?.email !== req.user?.email){
+        return res.status(403).send({message: 'forbidden access'})
+
+    }
     const assignment = req.body
     const result = await assignmentsCollection.insertOne(assignment)
     console.log(result)
@@ -188,7 +194,11 @@ app.post('/submitted', verify,  async(req, res)=>{
 })
 
 app.patch('/submitted/:id', async (req, res) => {
-    const id = req.params.id;
+    if(req.query?.email !== req.user?.email){
+        return res.status(403).send({message: 'forbidden access'})
+
+    }
+    const id = req.query.id;
     const filter = { _id: new ObjectId(id) };
     const updatedSubmittedAssignment = req.body;
     const updateDoc = {
