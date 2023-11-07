@@ -47,6 +47,7 @@ const dbConnect = async () => {
 
 const assignmentsCollection = client.db("assignmentsDB").collection("assignments");
 const submittedAssignmentsCollection = client.db("assignmentsDB").collection("submitted");
+const reviewsCollection = client.db("assignmentsDB").collection("reviews");
 
 // GET POST PATCH DELETE
 
@@ -54,15 +55,55 @@ app.get('/', (req, res) => {
     res.send('Assignment time running out')
 })
 
+// JWT
+app.post('/jwt', (req, res)=>{
+    const user = req.body
+    console.log('from jwt', user)
+
+    // Creating Token
+    const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1h'})
+    // storing in cookies
+    res
+    .cookie('token', token, {
+        httpOnly : false ,
+        secure : true,
+        sameSite:'none'
+    })
+    .send(token)
+})
+
+
+app.post('/logout', async (req, res) => {
+    const user = req.body;
+    console.log('logging out', user);
+    res
+    .clearCookie('token', { 
+        maxAge: 0,
+        sameSite: "none",
+        secure: true
+    })
+    .send('logged out')
+})
+
 // ASSIGNMENTS
 app.get('/assignments', async(req, res)=>{
     let query = {}
     if(req.query?.email){
         query = {email: req.query.email}
+    }else if(req.query?.difficulty){
+        query = {difficulty: req.query.difficulty}
+
     }
     const assignments = await assignmentsCollection.find(query).toArray()
     res.send(assignments)
 })
+
+app.get('/reviews', async(req, res)=>{
+    
+    const assignments = await reviewsCollection.find().toArray()
+    res.send(assignments)
+})
+
 app.get('/assignments/:id', async(req, res)=>{
     const id = req.params.id
     const query = {_id : new ObjectId(id)}
