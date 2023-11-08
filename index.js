@@ -127,6 +127,23 @@ app.get('/assignments/:id', async(req, res)=>{
     res.send(assignment)
 })
 
+app.get('/assignmentsCount', async (req, res) => {
+    const count = await assignmentsCollection.estimatedDocumentCount();
+    res.send({ count });
+  })
+
+ app.get('/pagination', async (req, res) => {
+      const page = parseInt(req.query.page);
+      const size = parseInt(req.query.size);
+
+      console.log('pagination query', page, size);
+      const result = await assignmentsCollection.find()
+      .skip(page * size)
+      .limit(size)
+      .toArray();
+      res.send(result);
+    })
+
 
 app.post('/assignments', verify, async(req, res)=>{
     if(req.query?.email !== req.user?.email){
