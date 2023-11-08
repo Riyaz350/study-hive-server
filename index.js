@@ -11,7 +11,8 @@ const port = process.env.PORT || 5000;
 app.use(cors({
     origin: [
         'http://localhost:5173',
-        'http://localhost:5174'
+        'http://localhost:5174',
+        'https://654b6b22b276872c0c4a8bf0--superlative-lokum-c289a2.netlify.app'
         ],
     credentials:true
 }));
@@ -135,8 +136,6 @@ app.get('/assignmentsCount', async (req, res) => {
  app.get('/pagination', async (req, res) => {
       const page = parseInt(req.query.page);
       const size = parseInt(req.query.size);
-
-      console.log('pagination query', page, size);
       const result = await assignmentsCollection.find()
       .skip(page * size)
       .limit(size)
