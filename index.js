@@ -12,7 +12,7 @@ app.use(cors({
     origin: [
         'http://localhost:5173',
         'http://localhost:5174',
-        'https://654b6b22b276872c0c4a8bf0--superlative-lokum-c289a2.netlify.app'
+        'https://654c500c41313025c2f09cc4--superlative-lokum-c289a2.netlify.app'
         ],
     credentials:true
 }));
