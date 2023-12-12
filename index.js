@@ -107,7 +107,10 @@ app.get('/assignments', async(req, res)=>{
     let query = {}
     if(req.query?.email){
         query = {email: req.query.email}
-    }else if(req.query?.difficulty){
+    }else if(req.query?.subject){
+        query = {subject: req.query.subject}
+    }
+    else if(req.query?.difficulty){
         query = {difficulty: req.query.difficulty}
 
     }
@@ -173,7 +176,8 @@ app.put('/assignments', verify, async(req, res)=>{
       difficulty: updatedAssignment.difficulty,
       date: updatedAssignment.date,
       mark: updatedAssignment.mark,
-      description: updatedAssignment.description   
+      description: updatedAssignment.description,
+      subject: updatedAssignment.subjectV  
     }
   }
   const result = await assignmentsCollection.updateOne(query, assignment, options)
